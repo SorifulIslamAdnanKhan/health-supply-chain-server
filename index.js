@@ -96,7 +96,7 @@ async function run() {
 
     app.post("/api/v1/supply", async (req, res) => {
       try {
-        const { title, category, description, amount, image } = req.body;
+        const { title, category, description, amount, image, email } = req.body;
 
         await supplyCollection.insertOne({
           title,
@@ -104,6 +104,7 @@ async function run() {
           description,
           amount,
           image,
+          email,
         });
 
         res.status(201).json({
@@ -124,7 +125,10 @@ async function run() {
     app.get("/api/v1/supply", async (req, res) => {
       try {
         const query = {};
-        const result = await supplyCollection.find(query).toArray();
+        const result = await supplyCollection
+          .find(query)
+          .sort({ amount: -1 })
+          .toArray();
 
         res.status(200).json({
           success: true,
