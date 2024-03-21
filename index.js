@@ -35,6 +35,7 @@ async function run() {
     const supplyCollection = db.collection("supplies");
     const volunteerCollection = db.collection("volunteers");
     const testimonialCollection = db.collection("testimonials");
+    const commentCollection = db.collection("comments");
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
@@ -215,6 +216,8 @@ async function run() {
       }
     });
 
+    // ==============================================================
+
     // Create Volunteer
 
     app.post("/api/v1/volunteer", async (req, res) => {
@@ -264,6 +267,8 @@ async function run() {
       }
     });
 
+    // ==============================================================
+
     // Create Testimonial
 
     app.post("/api/v1/testimonial", async (req, res) => {
@@ -306,6 +311,54 @@ async function run() {
         res.status(500).json({
           success: false,
           message: "Failed to retrieve testimonials",
+          error: error.message,
+        });
+      }
+    });
+
+    // ==============================================================
+
+    // Post Comment
+
+    app.post("/api/v1/comment", async (req, res) => {
+      try {
+        const { name, comment } = req.body;
+
+        await commentCollection.insertOne({
+          name,
+          comment,
+        });
+
+        res.status(201).json({
+          success: true,
+          message: "Comment added successfully",
+        });
+      } catch (error) {
+        console.error("Error adding comment:", error);
+        res.status(500).json({
+          success: false,
+          message: "Failed to add comment",
+          error: error.message,
+        });
+      }
+    });
+
+    // Get All Comments
+    app.get("/api/v1/comment", async (req, res) => {
+      try {
+        const query = {};
+        const result = await commentCollection.find(query).toArray();
+
+        res.status(200).json({
+          success: true,
+          data: result,
+          message: "Comments retrieved successfully",
+        });
+      } catch (error) {
+        console.error("Error retrieving comments:", error);
+        res.status(500).json({
+          success: false,
+          message: "Failed to retrieve comments",
           error: error.message,
         });
       }
