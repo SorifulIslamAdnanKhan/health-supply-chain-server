@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: "https://health-supply-chain-client.vercel.app",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -33,6 +33,7 @@ async function run() {
     const db = client.db("health-supply-chain-assignment-6");
     const collection = db.collection("users");
     const supplyCollection = db.collection("supplies");
+    const volunteerCollection = db.collection("volunteers");
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
@@ -208,6 +209,55 @@ async function run() {
         res.status(500).json({
           success: false,
           message: "Failed to update supply",
+          error: error.message,
+        });
+      }
+    });
+
+    // Create Volunteer
+
+    app.post("/api/v1/volunteer", async (req, res) => {
+      try {
+        const { name, email, phone, location, image } = req.body;
+
+        await volunteerCollection.insertOne({
+          name,
+          email,
+          phone,
+          location,
+          image,
+        });
+
+        res.status(201).json({
+          success: true,
+          message: "Volunteer added successfully",
+        });
+      } catch (error) {
+        console.error("Error adding volunteer:", error);
+        res.status(500).json({
+          success: false,
+          message: "Failed to add volunteer",
+          error: error.message,
+        });
+      }
+    });
+
+    // Get All Volunteer
+    app.get("/api/v1/volunteer", async (req, res) => {
+      try {
+        const query = {};
+        const result = await volunteerCollection.find(query).toArray();
+
+        res.status(200).json({
+          success: true,
+          data: result,
+          message: "Volunteers retrieved successfully",
+        });
+      } catch (error) {
+        console.error("Error retrieving volunteers:", error);
+        res.status(500).json({
+          success: false,
+          message: "Failed to retrieve volunteers",
           error: error.message,
         });
       }
