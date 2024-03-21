@@ -34,6 +34,7 @@ async function run() {
     const collection = db.collection("users");
     const supplyCollection = db.collection("supplies");
     const volunteerCollection = db.collection("volunteers");
+    const testimonialCollection = db.collection("testimonials");
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
@@ -258,6 +259,53 @@ async function run() {
         res.status(500).json({
           success: false,
           message: "Failed to retrieve volunteers",
+          error: error.message,
+        });
+      }
+    });
+
+    // Create Testimonial
+
+    app.post("/api/v1/testimonial", async (req, res) => {
+      try {
+        const { author, image, description } = req.body;
+
+        await testimonialCollection.insertOne({
+          author,
+          description,
+          image,
+        });
+
+        res.status(201).json({
+          success: true,
+          message: "Testimonial added successfully",
+        });
+      } catch (error) {
+        console.error("Error adding testimonial:", error);
+        res.status(500).json({
+          success: false,
+          message: "Failed to add testimonial",
+          error: error.message,
+        });
+      }
+    });
+
+    // Get All Testimonials
+    app.get("/api/v1/testimonial", async (req, res) => {
+      try {
+        const query = {};
+        const result = await testimonialCollection.find(query).toArray();
+
+        res.status(200).json({
+          success: true,
+          data: result,
+          message: "Testimonials retrieved successfully",
+        });
+      } catch (error) {
+        console.error("Error retrieving testimonials:", error);
+        res.status(500).json({
+          success: false,
+          message: "Failed to retrieve testimonials",
           error: error.message,
         });
       }
