@@ -39,7 +39,7 @@ async function run() {
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
-      const { name, email, password } = req.body;
+      const { name, email, password, role } = req.body;
 
       // Check if email already exists
       const existingUser = await collection.findOne({ email });
@@ -54,7 +54,12 @@ async function run() {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Insert user into the database
-      await collection.insertOne({ name, email, password: hashedPassword });
+      await collection.insertOne({
+        name,
+        email,
+        role,
+        password: hashedPassword,
+      });
 
       res.status(201).json({
         success: true,
