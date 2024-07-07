@@ -39,7 +39,7 @@ async function run() {
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
-      const { name, email, password, role } = req.body;
+      const { name, email, password } = req.body;
 
       // Check if email already exists
       const existingUser = await collection.findOne({ email });
@@ -57,7 +57,7 @@ async function run() {
       await collection.insertOne({
         name,
         email,
-        role,
+        role: "User",
         password: hashedPassword,
       });
 
@@ -83,15 +83,30 @@ async function run() {
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
-      // Generate JWT token
-      const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
-        expiresIn: process.env.EXPIRES_IN,
-      });
+      // // Generate JWT token
+      // const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+      //   expiresIn: process.env.EXPIRES_IN,
+      // });
+
+      // res.json({
+      //   success: true,
+      //   message: "Login successful",
+      //   token,
+      // });
+
+      const token = jwt.sign(
+        { email: user.email, role: user.role },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.EXPIRES_IN,
+        }
+      );
 
       res.json({
         success: true,
         message: "Login successful",
         token,
+        role: user.role, // Include role in the response
       });
     });
 
